@@ -1,12 +1,9 @@
 from django.urls import path
 from . import views
 
-app_name = 'core'
+app_name = 'payments'
 
 urlpatterns = [
-    path('', views.home_view, name='home'),
-    path('about/', views.about_view, name='about'),
-    path('contact/', views.contact_view, name='contact'),
-    path('faq/', views.faq_view, name='faq'),
-    path('dashboard/', views.admin_dashboard_view, name='admin_dashboard'),
+    path('history/', views.payment_history_view, name='history'),
+    path('receipt/<str:transaction_id>/', views.payment_receipt_view, name='receipt'),
 ]

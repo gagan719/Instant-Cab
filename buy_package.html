@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout — {{ package.name }} | Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:680px; padding-top:40px; padding-bottom:70px;">
+  <div style="margin-bottom:28px; text-align:center;">
+    <span class="badge badge-fixed" style="margin-bottom:8px;">Instant Package Activation</span>
+    <h1 style="font-size:2rem; margin-bottom:8px;">Complete Subscription</h1>
+    <p style="color:var(--text-muted);">Activate your {{ package.name }} plan to start using covered rides instantly.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border-color);">
+      <div>
+        <h3 style="font-size:1.3rem;">{{ package.name }}</h3>
+        <p style="color:var(--text-muted); font-size:0.88rem; margin:0;">{{ package.ride_count }} Rides • {{ package.validity_days }} Days Validity</p>
+      </div>
+      <div style="font-size:1.8rem; font-weight:800; color:var(--primary-navy);">
+        ₹{{ package.price|floatformat:0 }}
+      </div>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Select Payment Method</label>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+          <label style="display:flex; align-items:center; gap:10px; padding:12px; border:1px solid var(--border-color); border-radius:var(--radius-md); cursor:pointer;">
+            <input type="radio" name="payment_method" value="UPI" checked>
+            <span style="font-weight:600;">Instant UPI (Google Pay, PhonePe, Paytm, BHIM)</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:10px; padding:12px; border:1px solid var(--border-color); border-radius:var(--radius-md); cursor:pointer;">
+            <input type="radio" name="payment_method" value="Card">
+            <span style="font-weight:600;">Credit / Debit Card / Net Banking</span>
+          </label>
+        </div>
+      </div>
+
+      <div style="background:#f8fafc; padding:14px; border-radius:var(--radius-md); margin:20px 0; font-size:0.85rem; color:var(--text-muted);">
+        🔒 Safe 256-Bit SSL Encrypted checkout. Your package will be immediately linked to your account wallet upon payment.
+      </div>
+
+      <button type="submit" class="btn btn-accent btn-block btn-lg">
+        Pay ₹{{ package.price|floatformat:0 }} & Activate Package ➔
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

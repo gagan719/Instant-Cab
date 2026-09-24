@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Local Rides Above 20 km — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px; padding-bottom:70px;">
+  <!-- Section Title -->
+  <div style="text-align:center; max-width:720px; margin:0 auto 36px auto;">
+    <span class="badge badge-success" style="margin-bottom:8px;">Suburban & Long City Trips</span>
+    <h1 style="font-size:2.4rem; margin-bottom:12px;">Local Rides Above 20 km</h1>
+    <p style="color:var(--text-muted); font-size:1.05rem;">
+      Standard city rides under 20 km follow conventional meter rules. But for suburban travel, airport drops, and journeys exceeding 20 km, Instant Cab delivers discounted long-distance slabs with zero dead-mileage charges.
+    </p>
+  </div>
+
+  <div class="grid-2" style="gap:36px; align-items:start; margin-bottom:48px;">
+    <!-- Interactive Estimator -->
+    <div class="card" style="border:1.5px solid #dbeafe;">
+      <h3 style="font-size:1.25rem; margin-bottom:14px;">Instant Local Fare Estimator</h3>
+      <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:18px;">
+        Slide or enter your intended distance to preview transparent slab rates.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label" for="localDistanceInput">Travel Distance: <span id="distVal" style="color:var(--primary-blue); font-weight:800;">35</span> km</label>
+        <input type="range" id="localDistanceRange" min="20" max="120" value="35" step="1" style="width:100%; margin-bottom:10px;">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Cab Type</label>
+        <select id="localCabSelect" class="form-select">
+          <option value="sedan">Comfort Sedan (₹14/km base)</option>
+          <option value="suv">Prime SUV (₹18/km base)</option>
+          <option value="hatchback">Economy Hatchback (₹12/km base)</option>
+        </select>
+      </div>
+
+      <!-- Preview Output -->
+      <div class="fare-preview-box" style="margin:20px 0;">
+        <div>
+          <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">ESTIMATED LOCAL FARE</div>
+          <div style="font-size:0.8rem; color:#10b981;">Includes Base + Per Km Slab + GST</div>
+        </div>
+        <div class="fare-amount" id="localFareResult">₹829</div>
+      </div>
+
+      <a id="bookLocalBtn" href="{% url 'bookings:book' %}?trip_type=local&distance=35&cab_type=sedan" class="btn btn-accent btn-block">
+        Book This Local Ride ➔
+      </a>
+    </div>
+
+    <!-- How It Works & Slabs -->
+    <div>
+      <div class="card" style="margin-bottom:24px;">
+        <h3 style="font-size:1.25rem; margin-bottom:12px;">Why 20+ km Pricing is Smarter</h3>
+        <ul style="list-style:none; font-size:0.95rem;">
+          <li style="margin-bottom:12px; display:flex; gap:10px;">
+            <span style="color:#10b981; font-weight:bold;">✓</span>
+            <div><strong>No Round-Trip Return Tolls:</strong> One-way travel to airport or outer industrial estates doesn't charge you for the cab's return.</div>
+          </li>
+          <li style="margin-bottom:12px; display:flex; gap:10px;">
+            <span style="color:#10b981; font-weight:bold;">✓</span>
+            <div><strong>Progressive Distance Discounts:</strong> The further you ride beyond 20 km, the lower your per-kilometer slab rate.</div>
+          </li>
+          <li style="margin-bottom:12px; display:flex; gap:10px;">
+            <span style="color:#10b981; font-weight:bold;">✓</span>
+            <div><strong>Pre-Calculated Total:</strong> Fares are locked prior to boarding—traffic jams don't drive up the meter.</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:1.15rem; margin-bottom:14px;">Official Local Ride Slabs</h3>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Vehicle</th>
+                <th>Distance Slab</th>
+                <th>Base Fare</th>
+                <th>Rate / Km</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for slab in slabs %}
+                <tr>
+                  <td style="font-weight:600;">{{ slab.cab_type.display_name }}</td>
+                  <td>{{ slab.min_distance }} km to {{ slab.max_distance|default:"Unlimited" }} km</td>
+                  <td>₹{{ slab.base_fare|floatformat:0 }}</td>
+                  <td style="color:var(--primary-blue); font-weight:700;">₹{{ slab.rate_per_km }}/km</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const range = document.getElementById('localDistanceRange');
+  const distVal = document.getElementById('distVal');
+  const cabSelect = document.getElementById('localCabSelect');
+  const fareResult = document.getElementById('localFareResult');
+  const bookBtn = document.getElementById('bookLocalBtn');
+
+  function updateLocalCalc() {
+    const dist = range.value;
+    const cab = cabSelect.value;
+    distVal.textContent = dist;
+
+    fetch(`/pricing/api/calculate-fare/?trip_type=local&distance=${dist}&cab_type=${cab}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          fareResult.textContent = `₹${Math.round(data.pricing.total_fare)}`;
+          bookBtn.href = `{% url 'bookings:book' %}?trip_type=local&distance=${dist}&cab_type=${cab}`;
+        }
+      });
+  }
+
+  range.addEventListener('input', updateLocalCalc);
+  cabSelect.addEventListener('change', updateLocalCalc);
+  updateLocalCalc();
+});
+</script>
+{% endblock %}

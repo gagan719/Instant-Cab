@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Our Verified Captains — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px; padding-bottom:70px;">
+  <!-- Header -->
+  <div style="text-align:center; max-width:700px; margin:0 auto 36px auto;">
+    <span class="badge badge-success" style="margin-bottom:8px;">100% Background Verified</span>
+    <h1 style="font-size:2.4rem; margin-bottom:12px;">Meet Our Captains</h1>
+    <p style="color:var(--text-muted); font-size:1.05rem;">
+      Professional, courteous, and seasoned highway drivers trained for high-safety outstation journeys and suburban city rides.
+    </p>
+  </div>
+
+  <div class="grid-3" style="gap:24px;">
+    {% for driver in drivers %}
+      <div class="card" style="text-align:center; padding:28px 20px;">
+        <div style="width:72px; height:72px; border-radius:var(--radius-full); background:#dbeafe; color:var(--primary-blue); font-size:2.2rem; display:flex; align-items:center; justify-content:center; margin:0 auto 14px auto;">
+          👨‍✈️
+        </div>
+
+        <h3 style="font-size:1.25rem; margin-bottom:4px;">{{ driver.user.get_full_name|default:driver.user.username }}</h3>
+        <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:14px;">
+          Base City: {{ driver.current_city }} • {{ driver.experience_years }} Yrs Exp.
+        </div>
+
+        <div style="display:inline-flex; align-items:center; gap:6px; background:#fef3c7; color:#b45309; padding:4px 12px; border-radius:var(--radius-full); font-weight:700; font-size:0.85rem; margin-bottom:16px;">
+          ★ {{ driver.rating }} Rating ({{ driver.total_trips }}+ Trips)
+        </div>
+
+        {% if driver.vehicle %}
+          <div style="background:#f8fafc; border:1px solid var(--border-color); border-radius:var(--radius-md); padding:10px; font-size:0.85rem;">
+            <div style="font-weight:700; color:var(--primary-navy);">{{ driver.vehicle.model_name }}</div>
+            <div style="color:var(--text-muted);">{{ driver.vehicle.registration_number }} • {{ driver.vehicle.color }}</div>
+          </div>
+        {% endif %}
+
+        <div style="margin-top:16px;">
+          <span class="badge {% if driver.status == 'available' %}badge-success{% else %}badge-info{% endif %}">
+            ● {{ driver.get_status_display }}
+          </span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

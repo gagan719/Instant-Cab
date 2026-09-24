@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Instant Cab — Mission & Service Model{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:900px; padding-top:40px; padding-bottom:70px;">
+  <!-- Hero banner -->
+  <div style="text-align:center; margin-bottom:48px;">
+    <span class="badge badge-fixed" style="margin-bottom:8px;">Our Mission</span>
+    <h1 style="font-size:2.6rem; margin-bottom:12px;">Pioneering Transparent Mobility</h1>
+    <p style="color:var(--text-muted); font-size:1.1rem; max-width:650px; margin:0 auto;">
+      We founded Instant Cab to end the stress of unpredictable taxi fares, unexpected toll arguments, and sudden surge multipliers.
+    </p>
+  </div>
+
+  <div class="card" style="margin-bottom:32px; padding:36px;">
+    <h2 style="font-size:1.6rem; margin-bottom:14px;">The Instant Cab Difference</h2>
+    <p style="font-size:1rem; color:var(--text-body); margin-bottom:14px;">
+      Conventional cab aggregators compute trip pricing dynamically during or after the ride—often leading to unpleasant surprises from traffic delays, rain surges, or disputed highway tolls.
+    </p>
+    <p style="font-size:1rem; color:var(--text-body); margin-bottom:14px;">
+      Instant Cab is engineered with a transparent pricing model:
+    </p>
+    <div class="grid-3" style="margin-top:24px; gap:20px;">
+      <div style="background:#f8fafc; padding:20px; border-radius:var(--radius-md);">
+        <div style="font-size:1.8rem; margin-bottom:8px;">🏷️</div>
+        <h4 style="margin-bottom:6px;">Fixed Fares Upfront</h4>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin:0;">
+          All-inclusive pricing locked in before confirmation. Tolls, driver allowances, and taxes included.
+        </p>
+      </div>
+
+      <div style="background:#f8fafc; padding:20px; border-radius:var(--radius-md);">
+        <div style="font-size:1.8rem; margin-bottom:8px;">🎫</div>
+        <h4 style="margin-bottom:6px;">Subscription Packages</h4>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin:0;">
+          Frequent commuters can pre-purchase bundles like the Daily Saver and Monthly Commuter to save up to 45%.
+        </p>
+      </div>
+
+      <div style="background:#f8fafc; padding:20px; border-radius:var(--radius-md);">
+        <div style="font-size:1.8rem; margin-bottom:8px;">📍</div>
+        <h4 style="margin-bottom:6px;">Local Rides > 20 km</h4>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin:0;">
+          Specialized distance-slab structure for suburban and outer-city trips with zero dead-mileage penalties.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:32px; text-align:center;">
+    <h3 style="font-size:1.4rem; margin-bottom:8px;">Ready to Experience Stress-Free Rides?</h3>
+    <p style="color:var(--text-muted); margin-bottom:20px;">Reserve your cab in under 60 seconds with instant booking confirmation.</p>
+    <a href="{% url 'bookings:book' %}" class="btn btn-accent btn-lg">Book Instant Cab Now ➔</a>
+  </div>
+</div>
+{% endblock %}

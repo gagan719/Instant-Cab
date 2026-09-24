@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment History — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:960px; padding-top:40px; padding-bottom:70px;">
+  <!-- Header -->
+  <div style="margin-bottom:28px;">
+    <span class="badge badge-info" style="margin-bottom:6px;">Billing & Invoices</span>
+    <h1 style="font-size:2.2rem; margin:0 0 6px 0;">Payment History</h1>
+    <p style="color:var(--text-muted); font-size:0.95rem;">Review all transactions for cab bookings and package subscriptions.</p>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Txn Reference</th>
+            <th>Type</th>
+            <th>Details</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Receipt</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in payments %}
+            <tr>
+              <td style="font-weight:700; color:var(--primary-navy); font-size:0.85rem;">{{ p.transaction_id }}</td>
+              <td>
+                <span class="badge {% if p.payment_type == 'package' %}badge-fixed{% else %}badge-info{% endif %}">
+                  {{ p.get_payment_type_display }}
+                </span>
+              </td>
+              <td style="font-size:0.88rem;">{{ p.notes|default:"-" }}</td>
+              <td style="font-size:0.85rem;">{{ p.created_at|date:"d M Y, h:i A" }}</td>
+              <td style="font-weight:800; color:var(--primary-blue); font-size:1.05rem;">₹{{ p.amount }}</td>
+              <td style="text-transform:uppercase; font-size:0.85rem;">{{ p.payment_method }}</td>
+              <td>
+                <span class="badge badge-success">✓ {{ p.get_status_display }}</span>
+              </td>
+              <td>
+                <a href="{% url 'payments:receipt' p.transaction_id %}" class="btn btn-outline btn-sm">Receipt</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" style="text-align:center; padding:32px; color:var(--text-muted);">
+                No payment transactions recorded yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

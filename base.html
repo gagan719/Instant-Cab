@@ -1,0 +1,143 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Instant Cab — Transparent Fixed-Price & Outstation Rides{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Instant Cab is the smarter way to book outstation, one-way, round-trip, and local rides above 20km with guaranteed fixed fares and no surge pricing.{% endblock %}">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="{% url 'core:home' %}" class="brand-logo" id="navBrand">
+        <div class="logo-icon">🚖</div>
+        <span>Instant<span class="highlight">Cab</span></span>
+      </a>
+
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation">☰</button>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="{% url 'core:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a></li>
+        <li><a href="{% url 'bookings:book' %}" class="{% if request.resolver_match.url_name == 'book' %}active{% endif %}">Book Cab</a></li>
+        <li><a href="{% url 'pricing:fixed_prices' %}" class="{% if request.resolver_match.url_name == 'fixed_prices' %}active{% endif %}">Fixed Prices</a></li>
+        <li><a href="{% url 'packages:list' %}" class="{% if request.resolver_match.app_name == 'packages' and request.resolver_match.url_name != 'wallet' %}active{% endif %}">Packages</a></li>
+        <li><a href="{% url 'pricing:local_ride' %}" class="{% if request.resolver_match.url_name == 'local_ride' %}active{% endif %}">Local Ride (>20 km)</a></li>
+        
+        {% if user.is_authenticated %}
+          <li><a href="{% url 'bookings:my_bookings' %}" class="{% if request.resolver_match.url_name == 'my_bookings' %}active{% endif %}">My Bookings</a></li>
+          <li><a href="{% url 'packages:wallet' %}" class="{% if request.resolver_match.url_name == 'wallet' %}active{% endif %}">My Wallet</a></li>
+          {% if user.is_staff or user.role == 'admin' %}
+            <li><a href="{% url 'core:admin_dashboard' %}" class="badge badge-warning" style="text-transform:none;">Admin Ops</a></li>
+          {% endif %}
+          {% if user.role == 'driver' %}
+            <li><a href="{% url 'drivers:dashboard' %}" class="badge badge-info" style="text-transform:none;">Driver Duty</a></li>
+          {% endif %}
+        {% endif %}
+      </ul>
+
+      <div class="nav-actions">
+        {% if user.is_authenticated %}
+          <div style="display:flex; align-items:center; gap:10px;">
+            <a href="{% url 'accounts:profile' %}" class="btn btn-outline btn-sm">
+              👤 {{ user.first_name|default:user.username }}
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="btn btn-outline btn-sm" style="color:#ef4444; border-color:#fecaca;">Logout</a>
+          </div>
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="btn btn-outline btn-sm">Log In</a>
+          <a href="{% url 'accounts:register' %}" class="btn btn-accent btn-sm">Sign Up</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- Global Flash Messages -->
+  {% if messages %}
+    <div class="container messages-container">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          <span>{{ message }}</span>
+          <span style="cursor:pointer; font-weight:bold; margin-left:12px;" onclick="this.parentElement.remove();">&times;</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Main Page Content Block -->
+  <main style="flex:1;">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="brand-logo" style="color:white; margin-bottom:14px;">
+            <div class="logo-icon">🚖</div>
+            <span>Instant<span class="highlight">Cab</span></span>
+          </div>
+          <p style="color:#94a3b8; font-size:0.9rem; max-width:320px;">
+            Your ride. Your price. No surprises. Seamless outstation and city journeys above 20km with upfront fixed pricing.
+          </p>
+          <div style="margin-top:16px; display:flex; gap:10px;">
+            <span class="badge badge-fixed">Verified Pricing</span>
+            <span class="badge badge-success">Zero Surge</span>
+          </div>
+        </div>
+
+        <div>
+          <h5>Rides & Pricing</h5>
+          <ul>
+            <li><a href="{% url 'bookings:book' %}">Book Outstation Cab</a></li>
+            <li><a href="{% url 'pricing:fixed_prices' %}">Fixed Price Routes</a></li>
+            <li><a href="{% url 'pricing:local_ride' %}">Local Rides (>20 km)</a></li>
+            <li><a href="{% url 'packages:list' %}">Subscription Packages</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h5>Company</h5>
+          <ul>
+            <li><a href="{% url 'core:about' %}">About Instant Cab</a></li>
+            <li><a href="{% url 'drivers:list' %}">Our Captains</a></li>
+            <li><a href="{% url 'reviews:list' %}">Reviews & Ratings</a></li>
+            <li><a href="{% url 'core:contact' %}">Contact & Support</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h5>Trust & Help</h5>
+          <ul>
+            <li><a href="{% url 'core:faq' %}">FAQs</a></li>
+            <li><a href="{% url 'core:contact' %}">24/7 Helpline</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms & Conditions</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 Instant Cab Technologies Pvt. Ltd. All rights reserved.</div>
+        <div>Engineered with Python Django & SQLite • Designed for High Performance</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

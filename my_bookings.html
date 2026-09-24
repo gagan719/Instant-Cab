@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Bookings — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px; padding-bottom:70px;">
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:28px;">
+    <div>
+      <span class="badge badge-info" style="margin-bottom:6px;">Ride History</span>
+      <h1 style="font-size:2.2rem; margin:0;">My Bookings</h1>
+    </div>
+    <a href="{% url 'bookings:book' %}" class="btn btn-accent">
+      + Book New Ride
+    </a>
+  </div>
+
+  <!-- Status Filter Pills -->
+  <div style="display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap;">
+    <a href="{% url 'bookings:my_bookings' %}" class="btn btn-sm {% if not selected_status %}btn-primary{% else %}btn-outline{% endif %}">
+      All
+    </a>
+    <a href="{% url 'bookings:my_bookings' %}?status=pending" class="btn btn-sm {% if selected_status == 'pending' %}btn-primary{% else %}btn-outline{% endif %}">
+      Pending
+    </a>
+    <a href="{% url 'bookings:my_bookings' %}?status=confirmed" class="btn btn-sm {% if selected_status == 'confirmed' %}btn-primary{% else %}btn-outline{% endif %}">
+      Confirmed
+    </a>
+    <a href="{% url 'bookings:my_bookings' %}?status=ongoing" class="btn btn-sm {% if selected_status == 'ongoing' %}btn-primary{% else %}btn-outline{% endif %}">
+      On Trip
+    </a>
+    <a href="{% url 'bookings:my_bookings' %}?status=completed" class="btn btn-sm {% if selected_status == 'completed' %}btn-primary{% else %}btn-outline{% endif %}">
+      Completed
+    </a>
+    <a href="{% url 'bookings:my_bookings' %}?status=cancelled" class="btn btn-sm {% if selected_status == 'cancelled' %}btn-primary{% else %}btn-outline{% endif %}">
+      Cancelled
+    </a>
+  </div>
+
+  <!-- Bookings List -->
+  <div style="display:flex; flex-direction:column; gap:18px;">
+    {% for b in bookings %}
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+        <div style="flex:2; min-width:280px;">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+            <span style="font-weight:800; color:var(--primary-navy); font-size:1.1rem;">{{ b.booking_id }}</span>
+            <span class="badge {% if b.status == 'completed' %}badge-success{% elif b.status == 'cancelled' %}badge-danger{% elif b.status == 'confirmed' or b.status == 'ongoing' %}badge-info{% else %}badge-warning{% endif %}">
+              {{ b.get_status_display }}
+            </span>
+            {% if b.is_fixed_price %}
+              <span class="badge badge-fixed">Fixed Fare</span>
+            {% endif %}
+          </div>
+
+          <div style="font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">
+            📍 {{ b.pickup_address }} ➔ 🏁 {{ b.destination_address }}
+          </div>
+
+          <div style="display:flex; gap:16px; font-size:0.85rem; color:var(--text-muted); flex-wrap:wrap;">
+            <span>📅 {{ b.pickup_date }} at {{ b.pickup_time }}</span>
+            <span>🚗 {{ b.cab_type.display_name }}</span>
+            {% if b.driver %}
+              <span>👨‍✈️ Driver: {{ b.driver.user.get_full_name|default:b.driver.user.username }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="text-align:right; min-width:140px;">
+          <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Total Fare</div>
+          <div style="font-size:1.45rem; font-weight:800; color:var(--primary-navy); margin-bottom:8px;">
+            ₹{{ b.total_fare }}
+          </div>
+          <a href="{% url 'bookings:detail' b.booking_id %}" class="btn btn-outline btn-sm">
+            View Details ➔
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="card" style="text-align:center; padding:50px 20px;">
+        <div style="font-size:3rem; margin-bottom:12px;">🚖</div>
+        <h3>No Bookings Found</h3>
+        <p style="color:var(--text-muted);">You haven't scheduled any rides under this category yet.</p>
+        <a href="{% url 'bookings:book' %}" class="btn btn-accent" style="margin-top:14px;">Book Your First Ride</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

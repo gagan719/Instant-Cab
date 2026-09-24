@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Package Plans — Instant Cab Ride Subscriptions{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px; padding-bottom:70px;">
+  <!-- Header -->
+  <div style="text-align:center; max-width:700px; margin:0 auto 40px auto;">
+    <span class="badge badge-success" style="margin-bottom:8px;">Frequent Commuter Savings</span>
+    <h1 style="font-size:2.4rem; margin-bottom:12px;">Instant Cab Ride Packages</h1>
+    <p style="color:var(--text-muted); font-size:1.05rem;">
+      Lock in massive savings on regular travel. One upfront subscription gives you pre-funded ride tokens with guaranteed zero surge pricing and automated checkout.
+    </p>
+    {% if user.is_authenticated %}
+      <div style="margin-top:16px;">
+        <a href="{% url 'packages:wallet' %}" class="btn btn-outline btn-sm">
+          💳 View My Package Wallet Balance
+        </a>
+      </div>
+    {% else %}
+      <div style="margin-top:16px;">
+        <a href="{% url 'accounts:login' %}?next={% url 'packages:list' %}" class="btn btn-outline btn-sm">
+          Sign In to Access Your Package Wallet
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Package Cards Grid -->
+  <div class="grid-3" style="gap:28px;">
+    {% for pkg in packages %}
+      <div class="card" style="border: {% if forloop.counter == 2 %}2px solid var(--primary-blue){% else %}1px solid var(--border-color){% endif %}; display:flex; flex-direction:column; justify-content:space-between; position:relative;">
+        {% if forloop.counter == 2 %}
+          <div style="position:absolute; top:-12px; right:20px; background:var(--primary-blue); color:white; font-size:0.75rem; font-weight:700; padding:4px 12px; border-radius:var(--radius-full);">
+            MOST POPULAR
+          </div>
+        {% endif %}
+
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span class="badge badge-fixed">Save {{ pkg.discount_percentage }}%</span>
+            {% if user.is_authenticated %}
+              {% for up in user_packages %}
+                {% if up.package_id == pkg.id and up.is_valid %}
+                  <span class="badge badge-success">✓ {{ up.rides_remaining }} Active Left</span>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </div>
+          
+          <h2 style="font-size:1.5rem; margin-bottom:6px;">{{ pkg.name }}</h2>
+          <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:20px;">{{ pkg.tagline }}</p>
+
+          <div style="margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border-color);">
+            <span style="font-size:2.4rem; font-weight:800; color:var(--primary-navy);">₹{{ pkg.price|floatformat:0 }}</span>
+            <span style="color:var(--text-muted); font-size:0.95rem;">/ {{ pkg.validity_days }} Days</span>
+            <div style="color:#10b981; font-weight:600; font-size:0.9rem; margin-top:4px;">
+              ₹{{ pkg.price_per_ride }} / ride • {{ pkg.ride_count }} Total Rides
+            </div>
+          </div>
+
+          <p style="font-size:0.92rem; color:var(--text-body); margin-bottom:18px;">
+            {{ pkg.description }}
+          </p>
+
+          <ul style="list-style:none; margin-bottom:28px; font-size:0.92rem;">
+            {% for feat in pkg.features %}
+              <li style="margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                <span style="color:#10b981; font-weight:bold;">✓</span> {{ feat }}
+              </li>
+            {% empty %}
+              <li style="margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                <span style="color:#10b981; font-weight:bold;">✓</span> Guaranteed zero surge pricing
+              </li>
+              <li style="margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                <span style="color:#10b981; font-weight:bold;">✓</span> Priority automated driver allocation
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div>
+          <a href="{% url 'packages:buy' pkg.id %}" class="btn {% if forloop.counter == 2 %}btn-accent{% else %}btn-primary{% endif %} btn-block btn-lg">
+            Subscribe Now ➔
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

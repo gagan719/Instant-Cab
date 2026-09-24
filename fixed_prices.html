@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Fixed Price Route Catalog — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px; padding-bottom:70px;">
+  <!-- Header -->
+  <div style="text-align:center; max-width:700px; margin:0 auto 36px auto;">
+    <span class="badge badge-fixed" style="margin-bottom:8px;">Zero Surge Guarantee</span>
+    <h1 style="font-size:2.4rem; margin-bottom:10px;">Fixed Price Route Catalog</h1>
+    <p style="color:var(--text-muted); font-size:1.05rem;">
+      Enjoy guaranteed flat pricing between major city pairs. The fare you see here includes driver allowance, highway tolls, and service taxes.
+    </p>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="card" style="margin-bottom:32px; padding:18px 24px;">
+    <form method="GET" action="{% url 'pricing:fixed_prices' %}" style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+      <div style="flex:2; min-width:240px;">
+        <input type="text" name="q" value="{{ q }}" class="form-input" placeholder="🔍 Search by city (e.g. Coimbatore, Ooty, Tiruppur)...">
+      </div>
+      <div style="flex:1; min-width:180px;">
+        <select name="cab_type" class="form-select">
+          <option value="">All Cab Types</option>
+          {% for cab in cab_types %}
+            <option value="{{ cab.name }}" {% if selected_cab == cab.name %}selected{% endif %}>{{ cab.display_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Filter Routes</button>
+      {% if q or selected_cab %}
+        <a href="{% url 'pricing:fixed_prices' %}" class="btn btn-outline">Reset</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Fixed Prices Grid -->
+  <div class="grid-3" style="gap:24px;">
+    {% for fp in fixed_prices %}
+      <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
+        <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:var(--accent-orange);"></div>
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span class="badge badge-fixed">Fixed Fare</span>
+            <span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">{{ fp.route.distance_km }} km</span>
+          </div>
+
+          <h3 style="font-size:1.25rem; margin-bottom:6px;">
+            {{ fp.route.pickup }} ➔ {{ fp.route.destination }}
+          </h3>
+          <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+            <span>🚗 {{ fp.cab_type.display_name }}</span> • <span>👥 {{ fp.cab_type.capacity }} Seats</span> • <span>AC</span>
+          </div>
+
+          <div style="background:#f8fafc; padding:10px 14px; border-radius:var(--radius-sm); font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">
+            ✓ Doorstep pickup • Zero toll stops • Transparent fare
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:14px; border-top:1px solid var(--border-color);">
+          <div>
+            <span style="font-size:0.75rem; color:var(--text-muted); display:block; font-weight:700;">FLAT RATE</span>
+            <span style="font-size:1.5rem; font-weight:800; color:var(--primary-navy);">₹{{ fp.fixed_fare|floatformat:0 }}</span>
+          </div>
+          <a href="{% url 'bookings:book' %}?pickup={{ fp.route.pickup }}&destination={{ fp.route.destination }}&cab_type={{ fp.cab_type.name }}" class="btn btn-accent btn-sm">
+            Book Ride ➔
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <div style="grid-column: 1 / -1; text-align:center; padding:60px 20px;">
+        <div style="font-size:3rem; margin-bottom:12px;">🔍</div>
+        <h3>No Fixed Routes Found</h3>
+        <p style="color:var(--text-muted);">Try a different search term or book a custom route directly.</p>
+        <a href="{% url 'bookings:book' %}" class="btn btn-primary" style="margin-top:14px;">Book Custom Journey</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

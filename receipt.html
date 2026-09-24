@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tax Invoice Receipt — {{ payment.transaction_id }} | Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:700px; padding-top:40px; padding-bottom:70px;">
+  <!-- Invoice Card -->
+  <div class="card" style="padding:40px; border:1px solid #cbd5e1; box-shadow:var(--shadow-md);">
+    <!-- Invoice Header -->
+    <div style="display:flex; justify-content:space-between; align-items:start; padding-bottom:20px; border-bottom:2px solid var(--primary-navy); margin-bottom:24px;">
+      <div>
+        <div class="brand-logo" style="margin-bottom:6px;">
+          <div class="logo-icon">🚖</div>
+          <span>Instant<span class="highlight">Cab</span></span>
+        </div>
+        <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+          Instant Cab Technologies Pvt. Ltd.<br>
+          GSTIN: 33AAACI1234F1Z5 • Support: help@instantcab.com
+        </div>
+      </div>
+
+      <div style="text-align:right;">
+        <span class="badge badge-success" style="font-size:0.85rem; margin-bottom:6px;">PAID INVOICE</span>
+        <div style="font-size:0.85rem; color:var(--text-muted);">Txn ID: <strong>{{ payment.transaction_id }}</strong></div>
+        <div style="font-size:0.85rem; color:var(--text-muted);">Date: {{ payment.created_at|date:"d M Y, h:i A" }}</div>
+      </div>
+    </div>
+
+    <!-- Billed To -->
+    <div style="margin-bottom:24px;">
+      <span style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">BILLED TO</span>
+      <div style="font-weight:700; font-size:1.05rem;">{{ payment.user.get_full_name|default:payment.user.username }}</div>
+      <div style="color:var(--text-muted); font-size:0.85rem;">Phone: {{ payment.user.phone|default:"-" }} • Email: {{ payment.user.email }}</div>
+    </div>
+
+    <!-- Line Items Table -->
+    <div class="table-responsive" style="margin-bottom:24px;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Type</th>
+            <th style="text-align:right;">Amount (INR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="font-weight:600;">{{ payment.notes|default:"Mobility Service" }}</div>
+              {% if payment.booking %}
+                <small style="color:var(--text-muted);">{{ payment.booking.pickup_address }} ➔ {{ payment.booking.destination_address }}</small>
+              {% elif payment.package %}
+                <small style="color:var(--text-muted);">{{ payment.package.ride_count }} Rides Subscription Plan</small>
+              {% endif %}
+            </td>
+            <td>{{ payment.get_payment_type_display }}</td>
+            <td style="text-align:right; font-weight:700;">₹{{ payment.amount }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Total Breakdown -->
+    <div style="display:flex; justify-content:flex-end; margin-bottom:24px;">
+      <div style="width:260px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.9rem;">
+          <span style="color:var(--text-muted);">Subtotal:</span>
+          <span>₹{{ payment.amount }}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem;">
+          <span style="color:var(--text-muted);">Taxes & GST (Included):</span>
+          <span>5%</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:1.3rem; font-weight:800; border-top:2px solid var(--border-color); padding-top:8px;">
+          <span>Total Paid:</span>
+          <span style="color:var(--primary-blue);">₹{{ payment.amount }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; font-size:0.82rem; color:var(--text-muted); padding-top:16px; border-top:1px dashed var(--border-color);">
+      Payment Method: {{ payment.payment_method }} • Status: Verified & Completed<br>
+      This is a computer-generated tax invoice. No signature required.
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:20px;">
+    <button onclick="window.print()" class="btn btn-primary">
+      🖨️ Print Invoice
+    </button>
+    <a href="{% url 'payments:history' %}" class="btn btn-outline">
+      Back to Payment History
+    </a>
+  </div>
+</div>
+{% endblock %}

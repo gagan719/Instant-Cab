@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Operations Dashboard — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:1200px; padding-top:40px; padding-bottom:70px;">
+  <!-- Dashboard Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:28px;">
+    <div>
+      <span class="badge badge-warning" style="margin-bottom:6px;">Administrator & Operations</span>
+      <h1 style="font-size:2.2rem; margin:0;">Operations Command Center</h1>
+    </div>
+    <div>
+      <a href="/admin/" target="_blank" class="btn btn-outline btn-sm">
+        ⚙️ Open Django Admin Backend ➔
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Metric Cards -->
+  <div class="grid-4" style="margin-bottom:32px;">
+    <div class="card" style="border-left:4px solid var(--primary-blue);">
+      <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Total Bookings</div>
+      <div style="font-size:2rem; font-weight:800; color:var(--primary-navy); margin:4px 0;">{{ total_bookings }}</div>
+      <div style="font-size:0.8rem; color:#10b981;">Lifetime passenger rides</div>
+    </div>
+
+    <div class="card" style="border-left:4px solid #f59e0b;">
+      <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Active / In Progress</div>
+      <div style="font-size:2rem; font-weight:800; color:#b45309; margin:4px 0;">{{ active_rides }}</div>
+      <div style="font-size:0.8rem; color:var(--text-muted);">Confirmed & ongoing</div>
+    </div>
+
+    <div class="card" style="border-left:4px solid #10b981;">
+      <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Completed Trips</div>
+      <div style="font-size:2rem; font-weight:800; color:#15803d; margin:4px 0;">{{ completed_rides }}</div>
+      <div style="font-size:0.8rem; color:#10b981;">Successful deliveries</div>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--accent-orange);">
+      <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Gross Revenue</div>
+      <div style="font-size:2rem; font-weight:800; color:var(--accent-orange); margin:4px 0;">₹{{ total_revenue|floatformat:0 }}</div>
+      <div style="font-size:0.8rem; color:var(--text-muted);">Bookings & packages</div>
+    </div>
+  </div>
+
+  <!-- Operational Bookings Table with Quick Control -->
+  <div class="card" style="margin-bottom:32px;">
+    <h3 style="font-size:1.25rem; margin-bottom:16px;">Live Bookings Dispatch & Operations</h3>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Passenger</th>
+            <th>Route</th>
+            <th>Cab</th>
+            <th>Date & Time</th>
+            <th>Fare</th>
+            <th>Assigned Captain</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in recent_bookings %}
+            <tr>
+              <td style="font-weight:700; color:var(--primary-navy); font-size:0.85rem;">{{ b.booking_id }}</td>
+              <td>
+                <div style="font-weight:600;">{{ b.passenger_name }}</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">{{ b.passenger_phone }}</div>
+              </td>
+              <td style="font-size:0.88rem;">
+                <div>📍 {{ b.pickup_address|truncatechars:20 }}</div>
+                <div style="color:var(--text-muted);">➔ 🏁 {{ b.destination_address|truncatechars:20 }}</div>
+              </td>
+              <td>{{ b.cab_type.display_name }}</td>
+              <td style="font-size:0.85rem;">{{ b.pickup_date }}<br>{{ b.pickup_time }}</td>
+              <td style="font-weight:700; color:var(--primary-blue);">₹{{ b.total_fare }}</td>
+              <td>
+                {% if b.driver %}
+                  <span style="font-weight:600;">{{ b.driver.user.first_name }}</span>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">{{ b.driver.vehicle.registration_number }}</div>
+                {% else %}
+                  <span style="color:#ef4444; font-size:0.85rem;">Unassigned</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge {% if b.status == 'completed' %}badge-success{% elif b.status == 'cancelled' %}badge-danger{% elif b.status == 'confirmed' or b.status == 'ongoing' %}badge-info{% else %}badge-warning{% endif %}">
+                  {{ b.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <form method="POST" style="display:flex; gap:6px; align-items:center;">
+                  {% csrf_token %}
+                  <input type="hidden" name="booking_id" value="{{ b.booking_id }}">
+                  <select name="new_status" class="form-select" style="padding:4px 8px; font-size:0.8rem; width:auto;">
+                    <option value="">Status...</option>
+                    <option value="confirmed" {% if b.status == 'confirmed' %}selected{% endif %}>Confirm</option>
+                    <option value="ongoing" {% if b.status == 'ongoing' %}selected{% endif %}>On Trip</option>
+                    <option value="completed" {% if b.status == 'completed' %}selected{% endif %}>Complete</option>
+                    <option value="cancelled" {% if b.status == 'cancelled' %}selected{% endif %}>Cancel</option>
+                  </select>
+
+                  {% if not b.driver %}
+                    <select name="driver_id" class="form-select" style="padding:4px 8px; font-size:0.8rem; width:auto;">
+                      <option value="">Assign...</option>
+                      {% for d in drivers_list %}
+                        <option value="{{ d.id }}">{{ d.user.first_name }} ({{ d.vehicle.cab_type.name }})</option>
+                      {% endfor %}
+                    </select>
+                  {% endif %}
+
+                  <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:0.8rem;">
+                    Update
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">
+                No recent booking records.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Captain Fleet Overview -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h3 style="font-size:1.25rem;">Active Fleet & Driver Status</h3>
+      <span style="font-size:0.85rem; color:var(--text-muted);">{{ available_drivers }} of {{ total_drivers }} Available</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Captain</th>
+            <th>License</th>
+            <th>Vehicle</th>
+            <th>Category</th>
+            <th>Trips</th>
+            <th>Rating</th>
+            <th>Duty Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in drivers_list %}
+            <tr>
+              <td style="font-weight:700;">{{ d.user.get_full_name|default:d.user.username }}</td>
+              <td style="font-size:0.85rem;">{{ d.license_number }}</td>
+              <td>{{ d.vehicle.model_name }} ({{ d.vehicle.registration_number }})</td>
+              <td>{{ d.vehicle.cab_type.display_name }}</td>
+              <td>{{ d.total_trips }}</td>
+              <td style="color:#f59e0b; font-weight:700;">{{ d.rating }} ★</td>
+              <td>
+                <span class="badge {% if d.status == 'available' %}badge-success{% elif d.status == 'on_trip' %}badge-warning{% else %}badge-secondary{% endif %}">
+                  ● {{ d.get_status_display }}
+                </span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

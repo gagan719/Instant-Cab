@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact & 24/7 Helpline — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:860px; padding-top:40px; padding-bottom:70px;">
+  <div style="text-align:center; margin-bottom:40px;">
+    <span class="badge badge-info" style="margin-bottom:8px;">24/7 Support</span>
+    <h1 style="font-size:2.4rem; margin-bottom:10px;">We're Here to Help</h1>
+    <p style="color:var(--text-muted); font-size:1.05rem;">
+      Have a question about your booking, a package subscription, or need immediate assistance on the road?
+    </p>
+  </div>
+
+  <div class="grid-2" style="gap:36px; align-items:start;">
+    <!-- Contact Info Cards -->
+    <div>
+      <div class="card" style="margin-bottom:20px;">
+        <div style="font-size:1.8rem; margin-bottom:6px;">📞</div>
+        <h4 style="margin-bottom:4px;">Direct Phone Support</h4>
+        <div style="font-size:1.1rem; font-weight:700; color:var(--primary-navy);">+91 98765 43210</div>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">Available 24 hours a day, 7 days a week</p>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div style="font-size:1.8rem; margin-bottom:6px;">📧</div>
+        <h4 style="margin-bottom:4px;">Email Support</h4>
+        <div style="font-size:1.05rem; font-weight:700; color:var(--primary-navy);">help@instantcab.com</div>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">Average reply time within 15 minutes</p>
+      </div>
+
+      <div class="card">
+        <div style="font-size:1.8rem; margin-bottom:6px;">🏢</div>
+        <h4 style="margin-bottom:4px;">Headquarters</h4>
+        <div style="font-size:0.95rem; color:var(--text-body);">
+          Instant Cab Technologies Pvt. Ltd.<br>
+          Avinashi Road, Peelamedu,<br>
+          Coimbatore, Tamil Nadu 641004
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="card">
+      <h3 style="font-size:1.3rem; margin-bottom:16px;">Send Us a Message</h3>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Your Name *</label>
+          <input type="text" name="name" class="form-input" placeholder="e.g. John Doe" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address *</label>
+          <input type="email" name="email" class="form-input" placeholder="e.g. john@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Subject *</label>
+          <input type="text" name="subject" class="form-input" placeholder="e.g. Booking Enquiry or Package Question" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom:24px;">
+          <label class="form-label">Message *</label>
+          <textarea name="message" rows="4" class="form-textarea" placeholder="Describe your query..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          Send Message ➔
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

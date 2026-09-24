@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leave a Review — Ride {{ booking.booking_id }} | Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:580px; padding-top:40px; padding-bottom:70px;">
+  <div class="card" style="padding:36px;">
+    <div style="text-align:center; margin-bottom:24px;">
+      <div style="font-size:2.5rem; margin-bottom:8px;">⭐</div>
+      <h1 style="font-size:1.8rem; margin-bottom:6px;">Rate Your Ride</h1>
+      <p style="color:var(--text-muted); font-size:0.92rem;">
+        How was your journey from {{ booking.pickup_address }} to {{ booking.destination_address }}?
+      </p>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-group" style="text-align:center; margin-bottom:24px;">
+        <label class="form-label" style="margin-bottom:12px;">Your Rating</label>
+        <div style="display:flex; justify-content:center; gap:16px;">
+          {% for r in "54321"|make_list %}
+            <label style="cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px;">
+              <input type="radio" name="rating" value="{{ r }}" {% if forloop.first %}checked{% endif %}>
+              <span style="font-weight:700; color:#f59e0b; font-size:1.2rem;">{{ r }}★</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:24px;">
+        <label class="form-label">Feedback Comments</label>
+        <textarea name="comment" rows="4" class="form-textarea" placeholder="Share your experience regarding punctuality, vehicle cleanliness, route comfort, and driver courtesy..." required></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-accent btn-block btn-lg">
+        Submit Review ➔
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Instant Cab — Your Ride. Your Price. No Surprises.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container hero-grid">
+    <div>
+      <div class="hero-tag">
+        <span>⚡ Fixed Price Guarantee</span> • Zero Surge Ever
+      </div>
+      <h1 class="hero-title">
+        Smart, Affordable & <span>Transparent</span> Cab Booking.
+      </h1>
+      <p class="hero-subtitle">
+        Know your exact fare before you step in. Instant Cab simplifies outstation one-way, round-trip, and local rides above 20 km with guaranteed upfront pricing.
+      </p>
+
+      <div style="display:flex; gap:14px; flex-wrap:wrap;">
+        <a href="{% url 'bookings:book' %}" class="btn btn-accent btn-lg">Book Instant Cab ➔</a>
+        <a href="{% url 'pricing:fixed_prices' %}" class="btn btn-outline btn-lg">Explore Fixed Fares</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <h4>{{ total_completed_trips }}+</h4>
+          <p>Successful Trips</p>
+        </div>
+        <div class="stat-item">
+          <h4>{{ verified_drivers_count }}+</h4>
+          <p>Verified Captains</p>
+        </div>
+        <div class="stat-item">
+          <h4>4.9 ★</h4>
+          <p>Passenger Rating</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Hero Booking Card -->
+    <div class="booking-widget-card" id="heroBookingWidget">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 style="font-size:1.35rem;">Plan Your Journey</h3>
+        <span class="badge badge-fixed" id="displayFareBadge">⚡ Upfront Fare Preview</span>
+      </div>
+
+      <form action="{% url 'bookings:book' %}" method="GET" id="heroBookingForm">
+        <!-- Trip Type Tabs -->
+        <div class="trip-tabs">
+          <button type="button" class="trip-tab-btn active" data-trip-type="oneway">One-Way</button>
+          <button type="button" class="trip-tab-btn" data-trip-type="roundtrip">Round-Trip</button>
+          <button type="button" class="trip-tab-btn" data-trip-type="local">Local (>20 km)</button>
+        </div>
+        <input type="hidden" name="trip_type" id="trip_type" value="oneway">
+
+        <div class="grid-2" style="gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="pickup_address">Pickup City / Landmark</label>
+            <input type="text" name="pickup" id="pickup_address" class="form-input" placeholder="e.g. Coimbatore" value="Coimbatore" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="destination_address">Destination</label>
+            <input type="text" name="destination" id="destination_address" class="form-input" placeholder="e.g. Tiruppur or Ooty" value="Tiruppur" required>
+          </div>
+        </div>
+
+        <div class="grid-2" style="gap:14px;">
+          <div class="form-group">
+            <label class="form-label">Pickup Date</label>
+            <input type="date" name="date" class="form-input" value="{{ today_date }}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Pickup Time</label>
+            <input type="time" name="time" class="form-input" value="09:00" required>
+          </div>
+        </div>
+
+        <!-- Hidden Round-Trip Return Date (toggled via JS) -->
+        <div class="form-group" id="returnDateGroup" style="display:none;">
+          <label class="form-label">Return Date</label>
+          <input type="date" name="return_date" class="form-input" value="{{ today_date }}">
+        </div>
+
+        <!-- Cab Type Radio / Card Selector -->
+        <div class="form-group" style="margin-top:10px;">
+          <label class="form-label">Select Cab Category</label>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
+            {% for cab in cab_types %}
+              {% if cab.name != 'luxury' %}
+                <div class="cab-option-card {% if cab.name == 'sedan' %}selected{% endif %}" data-cab-name="{{ cab.name }}">
+                  <input type="radio" name="cab_type_radio" value="{{ cab.name }}" {% if cab.name == 'sedan' %}checked{% endif %} style="display:none;">
+                  <div style="font-size:1.3rem; margin-bottom:4px;">
+                    {% if cab.name == 'sedan' %}🚗{% elif cab.name == 'suv' %}🚙{% else %}🚕{% endif %}
+                  </div>
+                  <div style="font-weight:700; font-size:0.88rem;">{{ cab.display_name|truncatewords:1 }}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">{{ cab.capacity }} Seats</div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <input type="hidden" name="cab_type" id="selectedCabTypeInput" value="sedan">
+        </div>
+
+        <!-- Dynamic Estimated Fare Box -->
+        <div class="fare-preview-box">
+          <div>
+            <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">ESTIMATED ALL-IN FARE</div>
+            <div style="font-size:0.82rem; color:#10b981; font-weight:600;">Includes tolls, GST & parking</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="fare-amount" id="displayFare">₹899</div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-accent btn-block btn-lg">
+          Proceed to Confirm Ride ➔
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Popular Fixed Price Routes (PRD Section 23A) -->
+<section class="section" style="background:#ffffff;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Guaranteed Flat Fares</span>
+      <h2 class="section-title">Popular Fixed Price Routes</h2>
+      <p class="section-desc">
+        No meter surprises. Travel between high-frequency city routes with guaranteed flat rates shown before confirmation.
+      </p>
+    </div>
+
+    <div class="grid-4">
+      {% for fp in featured_fixed_prices %}
+        <div class="card card-clickable" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <span class="badge badge-fixed">Fixed Price</span>
+              <span style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">{{ fp.route.distance_km }} km</span>
+            </div>
+            <h3 style="font-size:1.15rem; margin-bottom:6px;">{{ fp.route.pickup }} ➔ {{ fp.route.destination }}</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+              {{ fp.cab_type.display_name }} • {{ fp.cab_type.capacity }} Seats • AC
+            </p>
+          </div>
+
+          <div style="padding-top:14px; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span style="font-size:0.75rem; color:var(--text-muted); display:block;">ALL-IN FARE</span>
+              <span style="font-size:1.35rem; font-weight:800; color:var(--primary-navy);">₹{{ fp.fixed_fare|floatformat:0 }}</span>
+            </div>
+            <a href="{% url 'bookings:book' %}?pickup={{ fp.route.pickup }}&destination={{ fp.route.destination }}&cab_type={{ fp.cab_type.name }}" class="btn btn-primary btn-sm">
+              Book Now
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align:center; margin-top:36px;">
+      <a href="{% url 'pricing:fixed_prices' %}" class="btn btn-outline">
+        View All Fixed Price Destinations ➔
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Package Plans Highlight (PRD Section 23C) -->
+<section class="section" style="background:#f8fafc;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Frequent Rider Subscriptions</span>
+      <h2 class="section-title">Save Up to 45% with Package Plans</h2>
+      <p class="section-desc">
+        Pre-purchase your ride tokens in easy bundles. Guaranteed zero surge pricing and automated wallet deduction on every booking.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      {% for pkg in packages %}
+        <div class="card" style="border: {% if forloop.counter == 2 %}2px solid var(--primary-blue){% else %}1px solid var(--border-color){% endif %}; position:relative;">
+          {% if forloop.counter == 2 %}
+            <div style="position:absolute; top:-12px; right:20px; background:var(--primary-blue); color:white; font-size:0.75rem; font-weight:700; padding:4px 12px; border-radius:var(--radius-full);">
+              MOST POPULAR
+            </div>
+          {% endif %}
+          
+          <div style="margin-bottom:16px;">
+            <span class="badge badge-success" style="margin-bottom:8px;">Save {{ pkg.discount_percentage }}%</span>
+            <h3 style="font-size:1.4rem;">{{ pkg.name }}</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted);">{{ pkg.tagline }}</p>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <span style="font-size:2.2rem; font-weight:800; color:var(--primary-navy);">₹{{ pkg.price|floatformat:0 }}</span>
+            <span style="color:var(--text-muted); font-size:0.9rem;">/ {{ pkg.validity_days }} days</span>
+            <div style="font-size:0.85rem; color:#10b981; font-weight:600; margin-top:4px;">
+              Only ₹{{ pkg.price_per_ride }} per ride ({{ pkg.ride_count }} rides)
+            </div>
+          </div>
+
+          <ul style="list-style:none; margin-bottom:24px; font-size:0.9rem;">
+            {% for feat in pkg.features %}
+              <li style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                <span style="color:#10b981;">✓</span> {{ feat }}
+              </li>
+            {% endfor %}
+          </ul>
+
+          <a href="{% url 'packages:buy' pkg.id %}" class="btn {% if forloop.counter == 2 %}btn-primary{% else %}btn-outline{% endif %} btn-block">
+            Choose {{ pkg.name }}
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- The Instant Cab Difference (PRD Section 3 & 4) -->
+<section class="section" style="background:#ffffff;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Why Riders Choose Us</span>
+      <h2 class="section-title">Engineered for Transparency & Speed</h2>
+      <p class="section-desc">
+        We solved the biggest headache in cab booking: hidden charges, sudden surge spikes, and fare disputes.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div style="font-size:2.2rem; margin-bottom:14px;">🏷️</div>
+        <h3 style="font-size:1.2rem; margin-bottom:8px;">100% Fixed Fare Catalog</h3>
+        <p style="color:var(--text-muted); font-size:0.92rem;">
+          What you see is what you pay. Toll charges, state permits, and driver allowances are bundled upfront.
+        </p>
+      </div>
+
+      <div class="card">
+        <div style="font-size:2.2rem; margin-bottom:14px;">📍</div>
+        <h3 style="font-size:1.2rem; margin-bottom:8px;">Local Rides Above 20 km</h3>
+        <p style="color:var(--text-muted); font-size:0.92rem;">
+          Specialized pricing slabs for suburban, airport, and city-edge travel with zero round-trip return penalties.
+        </p>
+      </div>
+
+      <div class="card">
+        <div style="font-size:2.2rem; margin-bottom:14px;">🛡️</div>
+        <h3 style="font-size:1.2rem; margin-bottom:8px;">Verified Professional Captains</h3>
+        <p style="color:var(--text-muted); font-size:0.92rem;">
+          All drivers undergo background verification, vehicle safety inspections, and maintain a 4.8+ rating.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials & Reviews -->
+<section class="section" style="background:#f8fafc;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Customer Stories</span>
+      <h2 class="section-title">Loved by Commuters & Travelers</h2>
+    </div>
+
+    <div class="grid-2">
+      {% for rev in reviews %}
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            <div style="font-weight:700; color:var(--primary-navy);">
+              {{ rev.user.get_full_name|default:rev.user.username }}
+            </div>
+            <div style="color:#f59e0b; font-weight:700;">
+              {% for i in "12345"|make_list %}
+                {% if forloop.counter <= rev.rating %}★{% else %}☆{% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <p style="color:var(--text-body); font-style:italic; font-size:0.95rem; margin-bottom:12px;">
+            "{{ rev.comment }}"
+          </p>
+          <div style="font-size:0.8rem; color:var(--text-muted);">
+            Trip: {{ rev.booking.pickup_address }} ➔ {{ rev.booking.destination_address }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:480px; padding-top:60px; padding-bottom:80px;">
+  <div class="card" style="padding:36px; box-shadow:var(--shadow-xl); border:1px solid #dbeafe;">
+    <div style="text-align:center; margin-bottom:28px;">
+      <div style="font-size:2.5rem; margin-bottom:8px;">🚖</div>
+      <h1 style="font-size:1.8rem; margin-bottom:6px;">Welcome Back</h1>
+      <p style="color:var(--text-muted); font-size:0.95rem;">Sign in to access your bookings and package wallet.</p>
+    </div>
+
+    <!-- Quick Demo Credentials Callout -->
+    <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:var(--radius-md); padding:12px; margin-bottom:20px; font-size:0.85rem;">
+      <strong>Demo Accounts:</strong><br>
+      • Customer: <code>customer</code> / <code>customer123</code><br>
+      • Driver: <code>karthik_driver</code> / <code>driver123</code><br>
+      • Admin: <code>admin</code> / <code>admin123</code>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label" for="id_username">Username</label>
+        {{ form.username }}
+      </div>
+
+      <div class="form-group" style="margin-bottom:24px;">
+        <label class="form-label" for="id_password">Password</label>
+        {{ form.password }}
+      </div>
+
+      <button type="submit" class="btn btn-accent btn-block btn-lg">
+        Sign In ➔
+      </button>
+    </form>
+
+    <div style="text-align:center; margin-top:24px; padding-top:18px; border-top:1px solid var(--border-color); font-size:0.9rem;">
+      Don't have an account? <a href="{% url 'accounts:register' %}" style="font-weight:700;">Create Free Account</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

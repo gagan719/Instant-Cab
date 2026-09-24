@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Captain Portal — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:960px; padding-top:40px; padding-bottom:70px;">
+  <!-- Header & Status Toggle -->
+  <div class="card" style="margin-bottom:28px; background:linear-gradient(135deg, #0b132b, #1d4ed8); color:white;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+      <div>
+        <span class="badge badge-fixed" style="margin-bottom:8px;">Instant Cab Captain Console</span>
+        <h1 style="font-size:2rem; color:white; margin:0 0 6px 0;">Welcome, Captain {{ driver.user.first_name }}</h1>
+        <p style="opacity:0.85; font-size:0.92rem; margin:0;">
+          Vehicle: {{ driver.vehicle.model_name|default:"Not Assigned" }} ({{ driver.vehicle.registration_number|default:"-" }})
+        </p>
+      </div>
+
+      <!-- Quick Duty Toggle -->
+      <form method="POST" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.15); padding:8px 14px; border-radius:var(--radius-md);">
+        {% csrf_token %}
+        <span style="font-size:0.85rem; font-weight:600;">Status:</span>
+        <select name="driver_status" class="form-select" style="padding:6px 10px; font-size:0.85rem; background:white; color:black; width:auto;" onchange="this.form.submit()">
+          <option value="available" {% if driver.status == 'available' %}selected{% endif %}>🟢 Available for Rides</option>
+          <option value="on_trip" {% if driver.status == 'on_trip' %}selected{% endif %}>🟡 On Trip</option>
+          <option value="offline" {% if driver.status == 'offline' %}selected{% endif %}>⚪ Offline / Break</option>
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <!-- Performance Stats -->
+  <div class="grid-3" style="margin-bottom:28px; gap:16px;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:1.8rem; font-weight:800; color:var(--primary-navy);">{{ driver.total_trips }}</div>
+      <div style="color:var(--text-muted); font-size:0.85rem;">Total Lifetime Trips</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:1.8rem; font-weight:800; color:#f59e0b;">{{ driver.rating }} ★</div>
+      <div style="color:var(--text-muted); font-size:0.85rem;">Customer Rating</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:1.8rem; font-weight:800; color:#10b981;">{{ assigned_bookings.count }}</div>
+      <div style="color:var(--text-muted); font-size:0.85rem;">Total Assigned Trips</div>
+    </div>
+  </div>
+
+  <!-- Assigned Trips List -->
+  <div class="card">
+    <h3 style="font-size:1.25rem; margin-bottom:18px;">Assigned Ride Duty Queue</h3>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>Passenger</th>
+            <th>Pickup & Destination</th>
+            <th>Schedule</th>
+            <th>Total Fare</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in assigned_bookings %}
+            <tr>
+              <td style="font-weight:700; color:var(--primary-navy);">{{ b.booking_id }}</td>
+              <td>
+                <div style="font-weight:600;">{{ b.passenger_name }}</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">📞 {{ b.passenger_phone }}</div>
+              </td>
+              <td>
+                <div style="font-size:0.88rem;">📍 {{ b.pickup_address }}</div>
+                <div style="font-size:0.88rem; color:var(--text-muted);">➔ 🏁 {{ b.destination_address }}</div>
+              </td>
+              <td>
+                <div style="font-size:0.85rem; font-weight:600;">{{ b.pickup_date }}</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">{{ b.pickup_time }}</div>
+              </td>
+              <td style="font-weight:800; color:var(--primary-blue);">₹{{ b.total_fare }}</td>
+              <td>
+                <span class="badge {% if b.status == 'completed' %}badge-success{% elif b.status == 'ongoing' %}badge-warning{% elif b.status == 'confirmed' %}badge-info{% else %}badge-secondary{% endif %}">
+                  {{ b.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <form method="POST" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="booking_id" value="{{ b.booking_id }}">
+                  {% if b.status == 'confirmed' %}
+                    <button type="submit" name="action" value="start_ride" class="btn btn-primary btn-sm">
+                      ▶ Start Ride
+                    </button>
+                  {% elif b.status == 'ongoing' %}
+                    <button type="submit" name="action" value="complete_ride" class="btn btn-accent btn-sm">
+                      ✓ Complete Ride
+                    </button>
+                  {% else %}
+                    <span style="font-size:0.85rem; color:var(--text-muted);">Done</span>
+                  {% endif %}
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align:center; padding:32px; color:var(--text-muted);">
+                No rides currently assigned to your duty queue.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

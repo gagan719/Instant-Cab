@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:600px; padding-top:40px; padding-bottom:70px;">
+  <div class="card" style="padding:32px;">
+    <h1 style="font-size:1.8rem; margin-bottom:8px;">Edit Profile</h1>
+    <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:24px;">Update your contact and personal information.</p>
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="grid-2" style="gap:14px;">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          {{ form.first_name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          {{ form.last_name }}
+        </div>
+      </div>
+
+      <div class="grid-2" style="gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          {{ form.email }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          {{ form.phone }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Address</label>
+        {{ form.address }}
+      </div>
+
+      <div class="form-group" style="margin-bottom:24px;">
+        <label class="form-label">Date of Birth</label>
+        {{ form.date_of_birth }}
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'accounts:profile' %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Frequently Asked Questions — Instant Cab{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:800px; padding-top:40px; padding-bottom:70px;">
+  <div style="text-align:center; margin-bottom:40px;">
+    <span class="badge badge-fixed" style="margin-bottom:8px;">Help Center</span>
+    <h1 style="font-size:2.4rem; margin-bottom:10px;">Frequently Asked Questions</h1>
+    <p style="color:var(--text-muted); font-size:1.05rem;">
+      Clear answers to common questions about fixed pricing, packages, and booking policies.
+    </p>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:16px;">
+    <div class="card">
+      <h3 style="font-size:1.15rem; margin-bottom:8px; color:var(--primary-navy);">
+        What is included in the Fixed Price?
+      </h3>
+      <p style="color:var(--text-body); font-size:0.95rem; margin:0;">
+        All Instant Cab fixed prices include base vehicle hire, driver allowance, national & state highway toll charges, and GST. There are no sudden meter hikes or extra charges upon arrival.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:1.15rem; margin-bottom:8px; color:var(--primary-navy);">
+        How do Package Plans work?
+      </h3>
+      <p style="color:var(--text-body); font-size:0.95rem; margin:0;">
+        Packages (such as Daily Saver, Monthly Commuter, and Business Pack) allow you to pre-purchase ride tokens at discounts up to 45%. When booking a ride, simply select "Use Active Package Ride" and 1 ride token is deducted with zero out-of-pocket payment needed.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:1.15rem; margin-bottom:8px; color:var(--primary-navy);">
+        What is the Local Ride Above 20 km feature?
+      </h3>
+      <p style="color:var(--text-body); font-size:0.95rem; margin:0;">
+        Standard city taxi rules apply for trips up to 20 km. For longer suburban, industrial, or airport journeys above 20 km, Instant Cab applies special tiered distance slabs where the per-kilometer rate decreases progressively.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:1.15rem; margin-bottom:8px; color:var(--primary-navy);">
+        Can I cancel my ride?
+      </h3>
+      <p style="color:var(--text-body); font-size:0.95rem; margin:0;">
+        Yes! Free cancellation is offered up to 1 hour prior to your scheduled pickup time directly from your booking details page. If you used a package ride, the ride token is automatically refunded back to your wallet.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:1.15rem; margin-bottom:8px; color:var(--primary-navy);">
+        How are drivers assigned?
+      </h3>
+      <p style="color:var(--text-body); font-size:0.95rem; margin:0;">
+        Our automated system instantly checks driver location, vehicle category, and availability to assign a top-rated captain. You will see driver and vehicle registration details immediately on your confirmation screen.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
